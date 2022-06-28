@@ -1,0 +1,19 @@
+{
+  "name": "node-js-api-rest-v2",
+  "version": "1.0.0",
+  "description": "Executa aplicações javacript no lado do servidor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^10.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^8.5.2",
+    "@types/yargs": "^10.0.0"
+  }
+}
