@@ -1,26 +1,62 @@
 import * as restify from "restify";
 import { Router } from "../common/router";
-import { Users } from "./users.model";
+import { User } from "./users.model";
 
 class UserRouter extends Router {
-  applyRoutes(application: restify.Server) {
-    application.get("/users", (req, resp, next) => {
-      Users.findAll().then((users) => {
-        resp.json(users);
-        return next();
-      });
+  constructor() {
+    super();
+
+    this.on("beforeRender", (document) => {
+      document.password = undefined;
+    });
+  }
+
+  applyRoutes(app: restify.Server) {
+    app.get("/users", (req, resp, next) => {
+      User.find().then(this.render(resp, next));
     });
 
-    application.get("/users/:id", (req, resp, next) => {
-      Users.findById(req.params.id).then((user) => {
-        if (user) {
-          resp.json(user);
-          return next();
-        }
+    app.get("/users/:id", (req, resp, next) => {
+      User.findById(req.params.id).then(this.render(resp, next));
+    });
 
-        resp.send(404);
-        return next();
-      });
+    app.post("/users", (req, resp, next) => {
+      let user = new User(req.body);
+      user.save().then(this.render(resp, next));
+    });
+
+    app.put("/users/:id", (req, resp, next) => {
+      const options = { overwrite: true }; // parâmetro para substituir o documento inteiro, se não por default ele substitui parcialmente
+      User.update({ _id: req.params.id }, req.body, options)
+        .exec() // executa a query em si e nos permite usar promise
+        .then((result) => {
+          if (result.n) {
+            return User.findById(req.params.id);
+          } else {
+            return resp.send(404);
+          }
+        })
+        .then(this.render(resp, next));
+    });
+
+    app.patch("/users/:id", (req, resp, next) => {
+      const options = { new: true };
+      User.findByIdAndUpdate(req.params.id, req.body, options).then(
+        this.render(resp, next)
+      );
+    });
+
+    app.del("/users/:id", (req, resp, next) => {
+      User.remove({ _id: req.params.id })
+        .exec()
+        .then((cmdResult: any) => {
+          if (cmdResult.result.n) {
+            resp.send(204);
+          } else {
+            resp.send(404);
+          }
+          return next();
+        });
     });
   }
 }
