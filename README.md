@@ -37,3 +37,10 @@ Mongo:
   - coleção: agrupas um conjunto de documentos 
     - dentro da coleção temos schemas dinâmicos
 
+comandos:
+  tsc -w
+  nodemon dist/main.js
+  .\mongod.exe -dbpath="C:\Users\thiago\Documents\estudos\data\db"                                                                  
+    
+
+

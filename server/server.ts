@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 import { environment } from "../common/environment";
 import { Router } from "../common/router";
 import { mergePatchBodyParser } from "./merge-patch.parser";
+import { handleError } from "./error.handler";
 
 export class Server {
   application: restify.Server;
@@ -40,6 +41,8 @@ export class Server {
           // passa a diante a instância da nossa aplicação
           resolve(this.application);
         });
+
+        this.application.on("restifyError", handleError);
       } catch (error) {
         // caso de erro já fazemos o reject
         reject(error);

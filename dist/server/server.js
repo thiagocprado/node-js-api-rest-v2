@@ -4,6 +4,7 @@ const restify = require("restify"); // a configuração do restify não é basea
 const mongoose = require("mongoose");
 const environment_1 = require("../common/environment");
 const merge_patch_parser_1 = require("./merge-patch.parser");
+const error_handler_1 = require("./error.handler");
 class Server {
     // inicia nosso banco de dados
     initializeDb() {
@@ -34,6 +35,7 @@ class Server {
                     // passa a diante a instância da nossa aplicação
                     resolve(this.application);
                 });
+                this.application.on("restifyError", error_handler_1.handleError);
             }
             catch (error) {
                 // caso de erro já fazemos o reject
