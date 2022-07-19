@@ -8,16 +8,27 @@ class ReviewRouter extends ModelRouter<Review> {
     super(Review);
   }
 
+  envelope(document: any) {
+    const restId = document.restaurant._id
+      ? document.restaurant._id
+      : document.restaurant;
+
+    let resource = super.envelope(document);
+    resource._links.restaurant = `/restaurant/${restId}`;
+
+    return resource;
+  }
+
+  applyRoutes(app: restify.Server) {
+    app.get(`${this.basePath}`, this.findAll);
+    app.get(`${this.basePath}/:id`, [this.validateId, this.findById]);
+    app.post(`${this.basePath}`, this.save);
+  }
+
   protected prepareOne(
     query: mongoose.DocumentQuery<Review, Review>
   ): mongoose.DocumentQuery<Review, Review> {
     return query.populate("user", "name").populate("restaurant");
-  }
-
-  applyRoutes(app: restify.Server) {
-    app.get("/restaurants", this.findAll);
-    app.get("/restaurants/:id", [this.validateId, this.findById]);
-    app.post("/restaurants", this.save);
   }
 }
 

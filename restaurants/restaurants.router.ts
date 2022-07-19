@@ -8,6 +8,13 @@ class RestaurantRouter extends ModelRouter<Restaurant> {
     super(Restaurant);
   }
 
+  envelope(document: any) {
+    let resource = super.envelope(document);
+    resource._links.menu = `${this.basePath}/${resource._id}/menu`;
+
+    return resource;
+  }
+
   findMenu = (req, resp, next) => {
     Restaurant.findById(req.params.id, "+menu")
       .then((rest) => {
@@ -39,15 +46,15 @@ class RestaurantRouter extends ModelRouter<Restaurant> {
   };
 
   applyRoutes(app: restify.Server) {
-    app.get("/restaurants", this.findAll);
-    app.get("/restaurants/:id", [this.validateId, this.findById]);
-    app.del("/restaurants/:id", [this.validateId, this.del]);
-    app.patch("/restaurants/:id", [this.validateId, this.update]);
-    app.post("/restaurants", this.save);
-    app.put("/restaurants/:id", [this.validateId, this.replace]);
+    app.get(`${this.basePath}`, this.findAll);
+    app.get(`${this.basePath}/:id`, [this.validateId, this.findById]);
+    app.del(`${this.basePath}/:id`, [this.validateId, this.del]);
+    app.patch(`${this.basePath}/:id`, [this.validateId, this.update]);
+    app.post(`${this.basePath}`, this.save);
+    app.put(`${this.basePath}/:id`, [this.validateId, this.replace]);
 
-    app.get("/restaurants/:id/menu", [this.validateId, this.findMenu]);
-    app.put("/restaurants/:id/menu", [this.validateId, this.replaceMenu]);
+    app.get(`${this.basePath}/:id/menu`, [this.validateId, this.findMenu]);
+    app.put(`${this.basePath}/:id/menu`, [this.validateId, this.replaceMenu]);
   }
 }
 

@@ -12,13 +12,28 @@ class UserRouter extends ModelRouter<User> {
     });
   }
 
+  findByEmail = (req, resp, next) => {
+    if (req.query.email) {
+      User.findByEmail(req.query.email)
+        .then((user) => (user ? [user] : []))
+        .then(this.renderAll(resp, next))
+        .catch(next);
+    } else {
+      next();
+    }
+  };
+
   applyRoutes(app: restify.Server) {
-    app.get("/users", this.findAll);
-    app.get("/users/:id", [this.validateId, this.findById]);
-    app.del("/users/:id", [this.validateId, this.del]);
-    app.patch("/users/:id", [this.validateId, this.update]);
-    app.post("/users", this.save);
-    app.put("/users/:id", [this.validateId, this.replace]);
+    app.get({ path: `${this.basePath}`, version: "1.0.0" }, this.findAll);
+    app.get({ path: `${this.basePath}`, version: "2.0.0" }, [
+      this.findByEmail,
+      this.findAll,
+    ]);
+    app.get(`${this.basePath}/:id`, [this.validateId, this.findById]);
+    app.del(`${this.basePath}/:id`, [this.validateId, this.del]);
+    app.patch(`${this.basePath}/:id`, [this.validateId, this.update]);
+    app.post(`${this.basePath}`, this.save);
+    app.put(`${this.basePath}/:id`, [this.validateId, this.replace]);
   }
 }
 

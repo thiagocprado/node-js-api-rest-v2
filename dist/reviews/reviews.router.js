@@ -6,13 +6,21 @@ class ReviewRouter extends model_router_1.ModelRouter {
     constructor() {
         super(reviews_model_1.Review);
     }
-    prepareOne(query) {
-        return query.populate("user", "name").populate("restaurant");
+    envelope(document) {
+        const restId = document.restaurant._id
+            ? document.restaurant._id
+            : document.restaurant;
+        let resource = super.envelope(document);
+        resource._links.restaurant = `/restaurant/${restId}`;
+        return resource;
     }
     applyRoutes(app) {
-        app.get("/restaurants", this.findAll);
-        app.get("/restaurants/:id", [this.validateId, this.findById]);
-        app.post("/restaurants", this.save);
+        app.get(`${this.basePath}`, this.findAll);
+        app.get(`${this.basePath}/:id`, [this.validateId, this.findById]);
+        app.post(`${this.basePath}`, this.save);
+    }
+    prepareOne(query) {
+        return query.populate("user", "name").populate("restaurant");
     }
 }
 exports.reviewsRouter = new ReviewRouter();
