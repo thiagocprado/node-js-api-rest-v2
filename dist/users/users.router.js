@@ -1,61 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const restify_errors_1 = require("restify-errors");
-const router_1 = require("../common/router");
+const model_router_1 = require("../common/model-router");
 const users_model_1 = require("./users.model");
-class UserRouter extends router_1.Router {
+class UserRouter extends model_router_1.ModelRouter {
     constructor() {
-        super();
+        super(users_model_1.User);
+        // quando for acionado o evento, ele irá executar a função recebendo o document
         this.on("beforeRender", (document) => {
             document.password = undefined;
         });
     }
     applyRoutes(app) {
-        app.get("/users", (req, resp, next) => {
-            users_model_1.User.find().then(this.render(resp, next)).catch(next);
-        });
-        app.get("/users/:id", (req, resp, next) => {
-            users_model_1.User.findById(req.params.id).then(this.render(resp, next)).catch(next);
-        });
-        app.post("/users", (req, resp, next) => {
-            let user = new users_model_1.User(req.body);
-            user.save().then(this.render(resp, next)).catch(next);
-        });
-        app.put("/users/:id", (req, resp, next) => {
-            const options = { runValidators: true, overwrite: true }; // parâmetro para substituir o documento inteiro, se não por default ele substitui parcialmente
-            users_model_1.User.update({ _id: req.params.id }, req.body, options)
-                .exec() // executa a query em si e nos permite usar promise
-                .then((result) => {
-                if (result.n) {
-                    return users_model_1.User.findById(req.params.id).exec();
-                }
-                else {
-                    throw new restify_errors_1.NotFoundError("Documento não encontrado");
-                }
-            })
-                .then(this.render(resp, next))
-                .catch(next);
-        });
-        app.patch("/users/:id", (req, resp, next) => {
-            const options = { runValidators: true, new: true };
-            users_model_1.User.findByIdAndUpdate(req.params.id, req.body, options)
-                .then(this.render(resp, next))
-                .catch(next);
-        });
-        app.del("/users/:id", (req, resp, next) => {
-            users_model_1.User.remove({ _id: req.params.id })
-                .exec()
-                .then((cmdResult) => {
-                if (cmdResult.result.n) {
-                    resp.send(204);
-                }
-                else {
-                    throw new restify_errors_1.NotFoundError("Documento não encontrado");
-                }
-                return next();
-            })
-                .catch(next);
-        });
+        app.get("/users", this.findAll);
+        app.get("/users/:id", [this.validateId, this.findById]);
+        app.del("/users/:id", [this.validateId, this.del]);
+        app.patch("/users/:id", [this.validateId, this.update]);
+        app.post("/users", this.save);
+        app.put("/users/:id", [this.validateId, this.replace]);
     }
 }
 // já exportamos a instância

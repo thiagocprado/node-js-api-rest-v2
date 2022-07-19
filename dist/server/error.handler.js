@@ -19,6 +19,7 @@ exports.handleError = (req, resp, err, done) => {
                 messages.push({ message: err.errors[name] }.message);
             }
             err.toJSON = () => {
+                // @ts-ignore
                 errors: messages;
             };
             break;

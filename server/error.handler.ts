@@ -26,6 +26,7 @@ export const handleError = (
       }
 
       err.toJSON = () => {
+        // @ts-ignore
         errors: messages;
       };
       break;

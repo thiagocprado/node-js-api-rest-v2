@@ -8,6 +8,7 @@ export abstract class Router extends EventEmitter {
   render(response: restify.Response, next: restify.Next) {
     return (document) => {
       if (document) {
+        // emite um evento chamado beforeRender e passa o valor de document
         this.emit("beforeRender", document);
         response.json(document);
       } else {
@@ -15,6 +16,20 @@ export abstract class Router extends EventEmitter {
       }
 
       return next();
+    };
+  }
+
+  renderAll(response: restify.Response, next: restify.Next) {
+    return (documents: any[]) => {
+      if (documents) {
+        documents.forEach((document) => {
+          this.emit("beforeRender", document);
+
+          response.json(documents);
+        });
+      } else {
+        response.json([]);
+      }
     };
   }
 }
