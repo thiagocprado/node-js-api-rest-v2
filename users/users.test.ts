@@ -275,3 +275,30 @@ test("put /users:/id", () => {
     })
     .catch(fail);
 });
+
+test("authenticate user - not authorized", () => {
+  return request(address)
+    .post("/users/authenticate")
+    .send({
+      email: "admin@email.com",
+      password: "123",
+    })
+    .then((response) => {
+      expect(response.status).toBe(403);
+    })
+    .catch(fail);
+});
+
+test("authenticate user", () => {
+  return request(address)
+    .post("/users/authenticate")
+    .send({
+      email: "admin@email.com",
+      password: "123456",
+    })
+    .then((response) => {
+      expect(response.status).toBe(200);
+      expect(response.body.accessToken).toBeDefined();
+    })
+    .catch(fail);
+});

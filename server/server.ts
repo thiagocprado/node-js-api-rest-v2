@@ -1,6 +1,7 @@
 import * as restify from "restify"; // a configuração do restify não é baseada em promises
 import * as mongoose from "mongoose";
 import * as fs from "fs";
+import { logger } from "../common/logger";
 import { environment as env } from "../common/environment";
 import { Router } from "../common/router";
 import { mergePatchBodyParser } from "./merge-patch.parser";
@@ -25,6 +26,7 @@ export class Server {
         const options: restify.ServerOptions = {
           name: "meat-api",
           version: "1.0.0",
+          log: logger,
         };
 
         if (env.security.enableHttps) {
@@ -33,6 +35,9 @@ export class Server {
         }
 
         this.application = restify.createServer(options);
+
+        // logs
+        this.application.pre(restify.plugins.requestLogger({ log: logger }));
 
         // middlewares
         this.application.use(restify.plugins.queryParser()); // deixa disponível em json os parâmetros passados nas url's atráves de req.query

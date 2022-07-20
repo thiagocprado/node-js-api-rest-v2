@@ -8,6 +8,7 @@ import { Review } from "./reviews/reviews.model";
 import { usersRouter } from "./users/users.router";
 import { reviewsRouter } from "./reviews/reviews.router";
 import { Restaurant } from "./restaurants/restaurants.model";
+import { restaurantsRouter } from "./restaurants/restaurants.router";
 
 let server: Server;
 let address: string;
@@ -19,7 +20,7 @@ const beforeAllTests = () => {
 
   server = new Server();
   return server
-    .bootstrap([usersRouter, reviewsRouter])
+    .bootstrap([usersRouter, reviewsRouter, restaurantsRouter])
     .then(() => User.remove({}).exec())
     .then(() => {
       let admin = new User();

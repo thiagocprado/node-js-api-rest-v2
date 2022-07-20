@@ -8,4 +8,8 @@ export const environment = {
     certficate: process.env.CERT_FILE || "./security/keys/cert.pem",
     key: process.env.CERT_KEY_FILE || "./security/keys/key.pem",
   },
+  log: {
+    level: process.env.LOG_LEVEL || "debug",
+    name: process.env.LOG_NAME || "meat-api",
+  },
 };
