@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { NotFoundError } from "restify-errors";
 
 export abstract class Router extends EventEmitter {
-  abstract applyRoutes(application: restify.Server);
+  abstract applyRoutes(application: restify.Server): restify.Server;
 
   envelope(document: any): any {
     return document;
@@ -14,7 +14,7 @@ export abstract class Router extends EventEmitter {
   }
 
   render(response: restify.Response, next: restify.Next) {
-    return (document) => {
+    return (document: any) => {
       if (document) {
         // emite um evento chamado beforeRender e passa o valor de document
         this.emit("beforeRender", document);
@@ -23,7 +23,7 @@ export abstract class Router extends EventEmitter {
         throw new NotFoundError("Documento não encontrado");
       }
 
-      return next();
+      return next(false);
     };
   }
 
@@ -40,7 +40,7 @@ export abstract class Router extends EventEmitter {
         response.json(this.envelopeAll([]));
       }
 
-      return next();
+      return next(false);
     };
   }
 }
