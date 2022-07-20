@@ -7,6 +7,7 @@ const users_model_1 = require("./users/users.model");
 const reviews_model_1 = require("./reviews/reviews.model");
 const users_router_1 = require("./users/users.router");
 const reviews_router_1 = require("./reviews/reviews.router");
+const restaurants_model_1 = require("./restaurants/restaurants.model");
 let server;
 let address;
 const beforeAllTests = () => {
@@ -16,10 +17,17 @@ const beforeAllTests = () => {
     server = new server_1.Server();
     return server
         .bootstrap([users_router_1.usersRouter, reviews_router_1.reviewsRouter])
+        .then(() => users_model_1.User.remove({}).exec())
         .then(() => {
-        users_model_1.User.remove({}).exec();
-        reviews_model_1.Review.remove({}).exec();
+        let admin = new users_model_1.User();
+        admin.name = "admin";
+        admin.email = "admin@email.com";
+        admin.password = "123456";
+        admin.profiles = ["admin", "user"];
+        return admin.save();
     })
+        .then(() => reviews_model_1.Review.remove({}).exec())
+        .then(() => restaurants_model_1.Restaurant.remove({}).exec())
         .catch(console.error);
 };
 const afterAllTests = () => {

@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { NotFoundError } from "restify-errors";
 
 export abstract class Router extends EventEmitter {
-  abstract applyRoutes(application: restify.Server): restify.Server;
+  abstract applyRoutes(application: restify.Server);
 
   envelope(document: any): any {
     return document;

@@ -1,11 +1,13 @@
 import "jest";
 import * as request from "supertest";
 
-let address: string = (<any>global).address;
+const address: string = (<any>global).address;
+const auth: string = (<any>global).auth;
 
 test("get /users", () => {
   return request(address)
     .get("/users")
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(200);
       expect(response.body.items).toBeInstanceOf(Array);
@@ -16,6 +18,7 @@ test("get /users", () => {
 test("post /users", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario1",
       email: "usuario1@email.com",
@@ -36,6 +39,7 @@ test("post /users", () => {
 test("post /users - nome obrigatorio", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       email: "user12@gmail.com",
       password: "123456",
@@ -56,13 +60,17 @@ test("post /users - nome obrigatorio", () => {
 test("get /users - findByEmail", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 3",
       email: "usuario3@email.com",
       password: "123456",
     })
     .then((response) =>
-      request(address).get("/users").query({ email: "usuario3@email.com" })
+      request(address)
+        .get("/users")
+        .set("Authorization", auth)
+        .query({ email: "usuario3@email.com" })
     )
     .then((response) => {
       expect(response.status).toBe(200);
@@ -76,6 +84,7 @@ test("get /users - findByEmail", () => {
 test("get /users/aaaaa - not found", () => {
   return request(address)
     .get("/users/aaaaa")
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -85,13 +94,18 @@ test("get /users/aaaaa - not found", () => {
 test("get /users/:id", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 6",
       email: "user6@gmail.com",
       password: "123456",
       cpf: "482.326.154-27",
     })
-    .then((response) => request(address).get(`/users/${response.body._id}`))
+    .then((response) =>
+      request(address)
+        .get(`/users/${response.body._id}`)
+        .set("Authorization", auth)
+    )
     .then((response) => {
       expect(response.status).toBe(200);
       expect(response.body.name).toBe("usuario 6");
@@ -105,6 +119,7 @@ test("get /users/:id", () => {
 test("delete /users/aaaaa - not found", () => {
   return request(address)
     .delete(`/users/aaaaa`)
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -114,13 +129,18 @@ test("delete /users/aaaaa - not found", () => {
 test("delete /users:/id", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 3",
       email: "user3@gmail.com",
       password: "123456",
       cpf: "187.638.581-26",
     })
-    .then((response) => request(address).delete(`/users/${response.body._id}`))
+    .then((response) =>
+      request(address)
+        .delete(`/users/${response.body._id}`)
+        .set("Authorization", auth)
+    )
     .then((response) => {
       expect(response.status).toBe(204);
     })
@@ -130,6 +150,7 @@ test("delete /users:/id", () => {
 test("patch /users/aaaaa - not found", () => {
   return request(address)
     .patch(`/users/aaaaa`)
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -139,6 +160,7 @@ test("patch /users/aaaaa - not found", () => {
 test("post /users - cpf invalido", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 12",
       email: "user12@gmail.com",
@@ -157,6 +179,7 @@ test("post /users - cpf invalido", () => {
 test("post /users - email duplicado", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "dupe",
       email: "dupe@gmail.com",
@@ -164,7 +187,7 @@ test("post /users - email duplicado", () => {
       cpf: "593.436.344-12",
     })
     .then((response) =>
-      request(address).post("/users").send({
+      request(address).post("/users").set("Authorization", auth).send({
         name: "dupe",
         email: "dupe@gmail.com",
         password: "123456",
@@ -181,15 +204,19 @@ test("post /users - email duplicado", () => {
 test("patch /users/:id", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario2",
       email: "usuario2@email.com",
       password: "123456",
     })
     .then((response) =>
-      request(address).patch(`/users/${response.body._id}`).send({
-        name: "usuario2 - patch",
-      })
+      request(address)
+        .patch(`/users/${response.body._id}`)
+        .set("Authorization", auth)
+        .send({
+          name: "usuario2 - patch",
+        })
     )
     .then((response) => {
       expect(response.status).toBe(200);
@@ -204,6 +231,7 @@ test("patch /users/:id", () => {
 test("put /users/aaaaa - not found", () => {
   return request(address)
     .put(`/users/aaaaa`)
+    .set("Authorization", auth)
     .then((response) => {
       expect(response.status).toBe(404);
     })
@@ -218,6 +246,7 @@ test("put /users/aaaaa - not found", () => {
 test("put /users:/id", () => {
   return request(address)
     .post("/users")
+    .set("Authorization", auth)
     .send({
       name: "usuario 7",
       email: "user7@gmail.com",
@@ -226,12 +255,15 @@ test("put /users:/id", () => {
       gender: "Male",
     })
     .then((response) =>
-      request(address).put(`/users/${response.body._id}`).send({
-        name: "usuario 7",
-        email: "user7@gmail.com",
-        password: "123456",
-        cpf: "613.586.318-59",
-      })
+      request(address)
+        .put(`/users/${response.body._id}`)
+        .set("Authorization", auth)
+        .send({
+          name: "usuario 7",
+          email: "user7@gmail.com",
+          password: "123456",
+          cpf: "613.586.318-59",
+        })
     )
     .then((response) => {
       expect(response.status).toBe(200);

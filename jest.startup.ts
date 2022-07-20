@@ -7,6 +7,7 @@ import { Review } from "./reviews/reviews.model";
 
 import { usersRouter } from "./users/users.router";
 import { reviewsRouter } from "./reviews/reviews.router";
+import { Restaurant } from "./restaurants/restaurants.model";
 
 let server: Server;
 let address: string;
@@ -19,10 +20,17 @@ const beforeAllTests = () => {
   server = new Server();
   return server
     .bootstrap([usersRouter, reviewsRouter])
+    .then(() => User.remove({}).exec())
     .then(() => {
-      User.remove({}).exec();
-      Review.remove({}).exec();
+      let admin = new User();
+      admin.name = "admin";
+      admin.email = "admin@email.com";
+      admin.password = "123456";
+      admin.profiles = ["admin", "user"];
+      return admin.save();
     })
+    .then(() => Review.remove({}).exec())
+    .then(() => Restaurant.remove({}).exec())
     .catch(console.error);
 };
 
