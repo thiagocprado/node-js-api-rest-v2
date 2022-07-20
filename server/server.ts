@@ -1,6 +1,7 @@
 import * as restify from "restify"; // a configuração do restify não é baseada em promises
 import * as mongoose from "mongoose";
 import * as fs from "fs";
+import * as corsMiddleware from "restify-cors-middleware";
 import { logger } from "../common/logger";
 import { environment as env } from "../common/environment";
 import { Router } from "../common/router";
@@ -36,10 +37,23 @@ export class Server {
 
         this.application = restify.createServer(options);
 
+        // cors
+        const corsOptions: corsMiddleware.Options = {
+          preflightMaxAge: 86400, // guarda as informações por um periodo de tempo
+          origins: ["*"], // todas a origens são permitidas, tomar cuidado
+          allowHeaders: ["authorization"], // headers que criamos
+          exposeHeaders: ["x-custom-header"], // headers customizados
+        };
+
+        const cors: corsMiddleware.CorsMiddleware = corsMiddleware(corsOptions);
+
+        this.application.pre(cors.preflight);
+
         // logs
         this.application.pre(restify.plugins.requestLogger({ log: logger }));
 
         // middlewares
+        this.application.use(cors.actual);
         this.application.use(restify.plugins.queryParser()); // deixa disponível em json os parâmetros passados nas url's atráves de req.query
         this.application.use(restify.plugins.bodyParser()); // transforma o body em json
         this.application.use(mergePatchBodyParser); // dando suporte a outro content type
